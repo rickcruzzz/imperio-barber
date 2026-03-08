@@ -8,10 +8,27 @@ import { TeamSection } from "@/components/sections/team";
 import { TestimonialsSection } from "@/components/sections/testimonials";
 
 async function getPublicContent() {
-  const url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1"}/public/content`;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!baseUrl) {
+    return {
+      services: [],
+      barbers: [],
+      testimonials: [],
+      gallery: [],
+      promotions: [],
+    };
+  }
+
+  const url = `${baseUrl}/public/content`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4000);
 
   try {
-    const response = await fetch(url, { cache: "no-store" });
+    const response = await fetch(url, {
+      cache: "no-store",
+      signal: controller.signal,
+    });
     if (!response.ok) {
       throw new Error("Failed to fetch content");
     }
@@ -24,6 +41,8 @@ async function getPublicContent() {
       gallery: [],
       promotions: [],
     };
+  } finally {
+    clearTimeout(timeout);
   }
 }
 

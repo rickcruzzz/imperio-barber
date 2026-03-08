@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,7 +19,6 @@ type FormValues = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const { register, handleSubmit, formState } = useForm<FormValues>({
@@ -27,10 +26,11 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    if (searchParams.get("registered") === "true") {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("registered") === "true") {
       setSuccess("Conta criada com sucesso! Faça login para continuar.");
     }
-  }, [searchParams]);
+  }, []);
 
   async function onSubmit(values: FormValues) {
     try {
