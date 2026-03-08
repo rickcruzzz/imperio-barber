@@ -1,4 +1,4 @@
-import jwt, { SignOptions } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { UserRole } from "@prisma/client";
 import { env } from "../config/env";
 
@@ -8,13 +8,15 @@ type TokenPayload = {
 };
 
 export function generateAccessToken(payload: TokenPayload) {
-  const options: SignOptions = { expiresIn: env.ACCESS_TOKEN_TTL };
-  return jwt.sign(payload, env.JWT_ACCESS_SECRET, options);
+  return jwt.sign(payload, env.JWT_ACCESS_SECRET, { 
+    expiresIn: env.ACCESS_TOKEN_TTL as string 
+  } as jwt.SignOptions);
 }
 
 export function generateRefreshToken(payload: TokenPayload) {
-  const options: SignOptions = { expiresIn: env.REFRESH_TOKEN_TTL };
-  return jwt.sign(payload, env.JWT_REFRESH_SECRET, options);
+  return jwt.sign(payload, env.JWT_REFRESH_SECRET, { 
+    expiresIn: env.REFRESH_TOKEN_TTL as string 
+  } as jwt.SignOptions);
 }
 
 export function verifyAccessToken(token: string): TokenPayload {
