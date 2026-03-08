@@ -16,8 +16,9 @@ export async function createServiceHandler(req: Request, res: Response) {
 }
 
 export async function updateServiceHandler(req: Request, res: Response) {
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const service = await prisma.service.update({
-    where: { id: req.params.id },
+    where: { id },
     data: req.body,
   });
 
