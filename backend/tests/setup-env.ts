@@ -1,0 +1,9 @@
+process.env.NODE_ENV = "test";
+process.env.PORT = "4000";
+process.env.DATABASE_URL = "postgresql://barbershop:barbershop@localhost:5432/barbershop_db?schema=public";
+process.env.JWT_ACCESS_SECRET = "test_access_secret_very_secure_123";
+process.env.JWT_REFRESH_SECRET = "test_refresh_secret_very_secure_123";
+process.env.ACCESS_TOKEN_TTL = "15m";
+process.env.REFRESH_TOKEN_TTL = "7d";
+process.env.CORS_ORIGIN = "http://localhost:3000";
+process.env.MAX_APPOINTMENTS_PER_DAY = "20";

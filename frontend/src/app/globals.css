@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0b0b0b;
+  --bg-soft: #141414;
+  --text: #f8f4ed;
+  --muted: #a5a29c;
+  --accent: #c8a96b;
+}
+
+html,
+body {
+  background: linear-gradient(130deg, var(--bg), #101010 42%, #060606);
+  color: var(--text);
+  min-height: 100%;
+}
+
+* {
+  border-color: rgba(200, 169, 107, 0.16);
+}
+
+.card-glass {
+  background: rgba(20, 20, 20, 0.86);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(200, 169, 107, 0.2);
+}
+
+.gold-gradient {
+  background: linear-gradient(120deg, #c8a96b, #f5dca8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

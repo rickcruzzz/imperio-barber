@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  BARBER
+  CLIENT
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELED
+}
+
+model User {
+  id                String    @id @default(cuid())
+  name              String
+  email             String    @unique
+  passwordHash      String
+  role              UserRole
+  avatarUrl         String?
+  refreshTokenHash  String?
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  client            Client?
+  barber            Barber?
+  testimonials      Testimonial[]
+  passwordResets    PasswordReset[]
+
+  @@index([role])
+  @@map("users")
+}
+
+model Client {
+  id            String         @id @default(cuid())
+  userId        String         @unique
+  phone         String?
+  birthDate     DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointments  Appointment[]
+
+  @@map("clients")
+}
+
+model Barber {
+  id            String         @id @default(cuid())
+  userId        String         @unique
+  bio           String?
+  specialty     String?
+  experience    Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointments  Appointment[]
+  schedules     Schedule[]
+
+  @@map("barbers")
+}
+
+model Service {
+  id            String         @id @default(cuid())
+  name          String
+  description   String?
+  price         Decimal        @db.Decimal(10, 2)
+  durationMin   Int
+  imageUrl      String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  appointments  Appointment[]
+
+  @@index([isActive])
+  @@map("services")
+}
+
+model Appointment {
+  id            String            @id @default(cuid())
+  clientId      String
+  barberId      String
+  serviceId     String
+  startAt       DateTime
+  endAt         DateTime
+  notes         String?
+  status        AppointmentStatus @default(PENDING)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  client        Client            @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  barber        Barber            @relation(fields: [barberId], references: [id], onDelete: Restrict)
+  service       Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@index([barberId, startAt])
+  @@index([clientId, startAt])
+  @@index([status])
+  @@map("appointments")
+}
+
+model Schedule {
+  id            String     @id @default(cuid())
+  barberId      String
+  weekday       Int
+  startTime     String
+  endTime       String
+  isAvailable   Boolean    @default(true)
+
+  barber        Barber     @relation(fields: [barberId], references: [id], onDelete: Cascade)
+
+  @@unique([barberId, weekday, startTime, endTime])
+  @@index([barberId, weekday])
+  @@map("schedules")
+}
+
+model Testimonial {
+  id            String     @id @default(cuid())
+  userId        String?
+  authorName    String
+  rating        Int
+  comment       String
+  isPublished   Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+
+  user          User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([isPublished])
+  @@map("testimonials")
+}
+
+model Gallery {
+  id            String     @id @default(cuid())
+  title         String
+  imageUrl      String
+  description   String?
+  isPublished   Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+
+  @@index([isPublished])
+  @@map("gallery")
+}
+
+model Promotion {
+  id            String     @id @default(cuid())
+  title         String
+  description   String
+  discountPct   Int
+  startsAt      DateTime
+  endsAt        DateTime
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+
+  @@index([isActive, startsAt, endsAt])
+  @@map("promotions")
+}
+
+model PasswordReset {
+  id            String    @id @default(cuid())
+  userId        String
+  tokenHash     String
+  expiresAt     DateTime
+  usedAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("password_resets")
+}
